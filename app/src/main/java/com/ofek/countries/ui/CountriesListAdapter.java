@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ofek.countries.R;
@@ -16,9 +17,10 @@ import java.util.List;
 public class CountriesListAdapter extends RecyclerView.Adapter<CountriesListAdapter.ViewHolder> {
 
     private final List<UiCountry> uiCountries;
-
-    public CountriesListAdapter(List<UiCountry> uiCountries) {
+    private final InteractionListener listener;
+    public CountriesListAdapter(List<UiCountry> uiCountries,@Nullable InteractionListener listener) {
         this.uiCountries = uiCountries;
+        this.listener = listener;
     }
 
     @NonNull
@@ -30,8 +32,8 @@ public class CountriesListAdapter extends RecyclerView.Adapter<CountriesListAdap
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         // as it's an example app I'm not adding the text as string resource
-        holder.englishNameTv.setText("English Name: " + uiCountries.get(position).getEnglishName());
-        holder.nativeNameTv.setText("English Name: " + uiCountries.get(position).getNativeName());
+        holder.englishNameTv.setText(uiCountries.get(position).getEnglishName());
+        holder.nativeNameTv.setText(uiCountries.get(position).getNativeName());
     }
 
     @Override
@@ -39,14 +41,21 @@ public class CountriesListAdapter extends RecyclerView.Adapter<CountriesListAdap
         return uiCountries.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         TextView englishNameTv, nativeNameTv;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             englishNameTv = itemView.findViewById(R.id.country_english_name);
             nativeNameTv = itemView.findViewById(R.id.country_native_name);
-
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onCountrySelected(uiCountries.get(getAdapterPosition()));
+                }
+            });
         }
+    }
 
+    public interface InteractionListener {
+        void onCountrySelected(UiCountry uiCountry);
     }
 }

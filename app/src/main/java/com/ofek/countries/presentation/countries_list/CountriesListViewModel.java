@@ -14,9 +14,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.common.collect.Lists;
 import com.ofek.countries.domain.objects.DomainCountryObj;
 import com.ofek.countries.domain.usecases.GetCountriesList;
+import com.ofek.countries.presentation.common.errors.CountryListError;
 import com.ofek.countries.presentation.common.errors.PresentationError;
 import com.ofek.countries.presentation.mappers.UiCountryMappers;
 import com.ofek.countries.presentation.objects.UiCountry;
+import com.ofek.countries.ui.countries_list.CountriesListFragment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -40,6 +42,8 @@ public class CountriesListViewModel extends ViewModel {
         this.getCountriesList = getCountriesList;
         initializeState();
     }
+
+
 
 
     public static class Factrory implements ViewModelProvider.Factory {
@@ -72,7 +76,27 @@ public class CountriesListViewModel extends ViewModel {
 
 
     public void loadCountries(){
-        getCountriesList.getCountries().subscribe(new SingleObserver<List<DomainCountryObj>>() {
+        getCountriesList.getCountries()
+                .flatMapObservable(Observable::fromIterable)
+                .sorted((country1,country2)->{
+                    // add the sorting to the new data
+                    if (stateLiveData.getValue().getSortingType().equals(CountriesListState.SortBy.NAME)) {
+                        return country1.getEnglishName().compareTo(country2.getEnglishName());
+                    } else {
+                        return country1.getArea().compareTo(country2.getArea());
+                    }
+
+                })
+                .toList()
+                .flatMap(countriesList->{
+                    // also if the order was descending the list should be reversed
+                    if (stateLiveData.getValue().getSortOrder().equals(CountriesListState.Order.DESCENDING)) {
+                        return Single.just(countriesList).map(Lists::reverse);
+                    } else {
+                        return Single.just(countriesList);
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread()).subscribe(new SingleObserver<List<DomainCountryObj>>() {
             private Disposable disposable;
 
             @Override
@@ -94,8 +118,10 @@ public class CountriesListViewModel extends ViewModel {
 
             @Override
             public void onError(Throwable e) {
-                CountriesListState newState = stateLiveData.getValue().newBuilder().setLoading(false).build();
+                Log.e(TAG, "onError: ",e );
+                CountriesListState newState = stateLiveData.getValue().newBuilder().setCountriesList(null).setLoading(false).build();
                 stateLiveData.setValue(newState);
+                errorLiveData.setValue(new CountryListError());
                 if (disposable != null && disposable.isDisposed()) {
                     disposable.dispose();
                 }
@@ -156,6 +182,7 @@ public class CountriesListViewModel extends ViewModel {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "onError: ",e );
+
                         if (disposable != null && disposable.isDisposed()) {
                             disposable.dispose();
                         }
@@ -164,33 +191,36 @@ public class CountriesListViewModel extends ViewModel {
     }
 
     public void observeLoadingChanges(LifecycleOwner owner, Observer<Boolean> observer) {
-        LiveData<Boolean> mediatorLiveData = Transformations.switchMap(stateLiveData, input -> new MutableLiveData<>(input.isLoading()));
+        LiveData<Boolean> mediatorLiveData = Transformations.switchMap(stateLiveData, state -> new MutableLiveData<>(state.isLoading()));
         mediatorLiveData.observe(owner,observer);
     }
 
     public void observeCountriesList(LifecycleOwner owner, Observer<List<UiCountry>> observer) {
-        LiveData<List<UiCountry>> mediatorLiveData = Transformations.switchMap(stateLiveData, input -> {
-            if (stateLiveData.getValue().getCountriesList() != null) {
+        LiveData<List<UiCountry>> mediatorLiveData = Transformations.map(stateLiveData, state -> {
+            if (state.getCountriesList() != null) {
                 // maps the countries to ui countries
-                List<UiCountry> countries = Observable.fromIterable(stateLiveData.getValue().getCountriesList())
+                return Observable.fromIterable(state.getCountriesList())
                         .map(UiCountryMappers::mapDomainCountryToUiCountry).toList().blockingGet();
-                return new MutableLiveData<>(countries);
             } else {
-                return new MutableLiveData<>(null);
+                return null;
             }
         });
         mediatorLiveData.observe(owner,observer);
     }
 
+
     public void observeSortTypeChanges(LifecycleOwner owner, Observer<CountriesListState.SortBy> observer) {
-        LiveData<CountriesListState.SortBy> mediatorLiveData = Transformations.switchMap(stateLiveData, input -> new MutableLiveData<>(input.getSortingType()));
+        LiveData<CountriesListState.SortBy> mediatorLiveData = Transformations.switchMap(stateLiveData, state -> new MutableLiveData<>(state.getSortingType()));
         mediatorLiveData.observe(owner,observer);
     }
     public void observeSortOrderChanges(LifecycleOwner owner, Observer<CountriesListState.Order> observer) {
-        LiveData<CountriesListState.Order> mediatorLiveData = Transformations.switchMap(stateLiveData, input -> new MutableLiveData<>(input.getSortOrder()));
+        LiveData<CountriesListState.Order> mediatorLiveData = Transformations.switchMap(stateLiveData, state -> new MutableLiveData<>(state.getSortOrder()));
         mediatorLiveData.observe(owner,observer);
     }
 
+    public void observerErrors(LifecycleOwner lifecycleOwner, Observer<PresentationError> observer) {
+        errorLiveData.observe(lifecycleOwner,observer);
+    }
 
     @Override
     protected void onCleared() {

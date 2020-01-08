@@ -5,6 +5,7 @@ import com.ofek.countries.domain.objects.DomainCountryObj;
 
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.Single;
 
 /**
@@ -24,7 +25,9 @@ public class CountriesApiManagerImp implements CountriesApiManager {
 
     @Override
     public Single<List<DomainCountryObj>> getCountriesList() {
-        return null;
+        return restCountriesEuService.getCountriesList()
+                .flatMapObservable(Observable::fromIterable)
+                .map(CountryObjectsMappers::mapCountryDTOToDomainCountry).toList();
     }
 
     @Override

@@ -6,19 +6,78 @@
     android:layout_height="match_parent"
     tools:context=".ui.countries_list.CountriesListFragment">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/countries_rv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/loading_failed_message_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Name"
+        android:text="Loading failed, swipe down to try again..."
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:drawableStart="@drawable/ic_warning_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/swipe_to_refresh"
+        app:layout_constraintEnd_toEndOf="@+id/swipe_to_refresh"
+        app:layout_constraintStart_toStartOf="@+id/swipe_to_refresh"
+        app:layout_constraintTop_toTopOf="@+id/swipe_to_refresh" />
+
+    <TextView
+        android:id="@+id/no_boarders_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading failed, swipe down to try again..."
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:drawableStart="@drawable/ic_warning_black_24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/swipe_to_refresh"
+        app:layout_constraintEnd_toEndOf="@+id/swipe_to_refresh"
+        app:layout_constraintStart_toStartOf="@+id/swipe_to_refresh"
+        app:layout_constraintTop_toTopOf="@+id/swipe_to_refresh" />
+
+    <TextView
+        android:id="@+id/name_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:drawableEnd="@drawable/arrow_drawable"
+        android:text="Name"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <TextView
+        android:id="@+id/arear_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:drawableEnd="@drawable/arrow_drawable"
+        android:text="Area"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/name_tv"
+        app:layout_constraintEnd_toStartOf="@+id/name_tv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="Select Country :"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/arear_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_to_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/name_tv" >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/countries_rv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+             />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,7 +18,7 @@ public class GetCountryByCode extends BaseSingleUseCase<DomainCountryObj> {
     private static final String CODE_KEY = "country_code";
     private final CountriesRepo countriesRepo;
     
-    protected GetCountryByCode(SingleTransformer<DomainCountryObj, DomainCountryObj> transformer, CountriesRepo countriesRepo) {
+    public GetCountryByCode(SingleTransformer<DomainCountryObj, DomainCountryObj> transformer, CountriesRepo countriesRepo) {
         super(transformer);
         this.countriesRepo = countriesRepo;
     }

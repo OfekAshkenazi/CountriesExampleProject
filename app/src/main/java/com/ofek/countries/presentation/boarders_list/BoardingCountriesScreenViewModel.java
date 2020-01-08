@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -13,12 +14,15 @@ import com.ofek.countries.domain.objects.DomainCountryObj;
 import com.ofek.countries.domain.usecases.GetCountryByCode;
 import com.ofek.countries.presentation.common.errors.BoardingListLoadingError;
 import com.ofek.countries.presentation.common.errors.PresentationError;
+import com.ofek.countries.presentation.mappers.UiCountryMappers;
+import com.ofek.countries.presentation.objects.UiCountry;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import io.reactivex.Observable;
 import io.reactivex.SingleObserver;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
@@ -94,6 +98,7 @@ public class BoardingCountriesScreenViewModel extends ViewModel {
                 .flatMap(countryCode -> getCountryByCode.getCountryByCode(countryCode).toObservable())
                 // then grouping the result of all countries to a single list
                 .toList()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SingleObserver<List<DomainCountryObj>>() {
                     Disposable disposable;
 
@@ -130,12 +135,31 @@ public class BoardingCountriesScreenViewModel extends ViewModel {
                 });
     }
 
-    public void observeState(LifecycleOwner owner, Observer<BoardingCountriesState> observer) {
-        stateLiveData.observe(owner,observer);
-    }
-
     public void observeErrorLiveData(LifecycleOwner owner, Observer<PresentationError> observer) {
         errorLiveData.observe(owner,observer);
+    }
+
+    public void observeCountryNameChanges(LifecycleOwner lifecycleOwner, Observer<String> observer) {
+        Transformations.map(stateLiveData, BoardingCountriesState::getCountryName)
+                .observe(lifecycleOwner,observer);
+    }
+
+    public void observeLoadingChanges(LifecycleOwner lifecycleOwner, Observer<Boolean> observer) {
+        Transformations.map(stateLiveData, BoardingCountriesState::isLoading)
+                .observe(lifecycleOwner,observer);
+    }
+
+    public void observeBoardingList(LifecycleOwner lifecycleOwner, Observer<List<UiCountry>> observer) {
+        Transformations.map(stateLiveData,state-> {
+            if (state.getCountriesList() != null) {
+                // maps the countries to ui countries
+                List<UiCountry> countries = Observable.fromIterable(state.getCountriesList())
+                        .map(UiCountryMappers::mapDomainCountryToUiCountry).toList().blockingGet();
+                return countries;
+            } else {
+                return null;
+            }
+        }).observe(lifecycleOwner,observer);
     }
     @Override
     protected void onCleared() {

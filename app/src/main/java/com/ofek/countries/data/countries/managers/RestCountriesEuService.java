@@ -14,9 +14,9 @@ import retrofit2.http.Path;
  */
 public interface RestCountriesEuService {
 
-    @GET("/all")
+    @GET("all")
     Single<List<CountryDTO>> getCountriesList();
 
-    @GET("/code/{code}")
+    @GET("alpha/{code}")
     Single<CountryDTO> getCountryByCountryCode(@Path("code") String code);
 }

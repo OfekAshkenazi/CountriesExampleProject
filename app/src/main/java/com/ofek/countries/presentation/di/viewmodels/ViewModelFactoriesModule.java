@@ -11,7 +11,7 @@ public class ViewModelFactoriesModule {
         managersProvider = provider;
     }
 
-    public static ViewModelFactoriesProvider getManagersProvider(){
+    public static ViewModelFactoriesProvider getFactoriesProvider(){
         if (managersProvider == null) {
             injectProvider(new ViewModelFactoriesProviderImp());
         }
