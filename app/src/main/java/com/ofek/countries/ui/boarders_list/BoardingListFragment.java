@@ -101,12 +101,12 @@ public class BoardingListFragment extends Fragment implements BoardingListLoadin
         countryNameTv.setText(s);
     }
 
-    private void onLoadingChanged(Boolean aBoolean) {
-        if (aBoolean) {
+    private void onLoadingChanged(Boolean isLoading) {
+        if (isLoading) {
             loadingFailedTv.setVisibility(View.GONE);
             noBoardersTv.setVisibility(View.GONE);
         }
-        swipeToRefreshLay.setRefreshing(aBoolean);
+        swipeToRefreshLay.setRefreshing(isLoading);
     }
 
     private void onBoardingListChanged(List<UiCountry> uiCountries) {

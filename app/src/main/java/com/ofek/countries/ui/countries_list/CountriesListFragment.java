@@ -90,20 +90,20 @@ public class CountriesListFragment extends Fragment implements CountryListError.
                 CountriesListState.Order order = v.isSelected() ? CountriesListState.Order.DESCENDING : CountriesListState.Order.ASCENDING;
                 countriesListViewModel.changeSorting(CountriesListState.SortBy.NAME,order);
             } else {
-                // otherwise, change the sorting to order and maintain the current order
+                // otherwise, change the sorting to name and maintain the current order
                 CountriesListState.Order order = v.isSelected() ? CountriesListState.Order.ASCENDING : CountriesListState.Order.DESCENDING;
                 countriesListViewModel.changeSorting(CountriesListState.SortBy.NAME,order);
             }
         });
         areaTv = view.findViewById(R.id.arear_tv);
         areaTv.setOnClickListener(v -> {
-            // if the name is already selected the order should change
+            // if the area is already selected, the order should change
             if (CountriesListState.SortBy.AREA_SIZE.equals(v.getTag())) {
                 // sets the order to the opposite of the current selected state.
                 CountriesListState.Order order = v.isSelected() ? CountriesListState.Order.DESCENDING : CountriesListState.Order.ASCENDING;
                 countriesListViewModel.changeSorting(CountriesListState.SortBy.AREA_SIZE,order);
             } else {
-                // otherwise, change the sorting to order and maintain the current order
+                // otherwise, change the sorting to area and maintain the current order
                 CountriesListState.Order order = v.isSelected() ? CountriesListState.Order.ASCENDING : CountriesListState.Order.DESCENDING;
                 countriesListViewModel.changeSorting(CountriesListState.SortBy.AREA_SIZE,order);
             }
@@ -130,10 +130,10 @@ public class CountriesListFragment extends Fragment implements CountryListError.
             nameTv.setTextColor(Color.BLACK);
         }
         if (CountriesListState.SortBy.AREA_SIZE.equals(sortBy)) {
-            // name filtering is selected, changes the color to selected color
+            // area filtering is selected, changes the color to selected color
             areaTv.setTextColor(Color.GREEN);
         } else {
-            // name filtering is not selected, changes the color to unselected color
+            // area filtering is not selected, changes the color to unselected color
             areaTv.setTextColor(Color.BLACK);
         }
     }
