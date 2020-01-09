@@ -113,9 +113,8 @@ public class BoardingListFragment extends Fragment implements BoardingListLoadin
         // if the countries list is null an empty array list will clean the previous shown list
         if (uiCountries != null) {
             // if countries list returned empty it means the country doesn't have boarders
-            if (!uiCountries.isEmpty()) {
-                countriesRv.setAdapter(new CountriesListAdapter(uiCountries,null));
-            } else {
+            countriesRv.setAdapter(new CountriesListAdapter(uiCountries,null));
+            if (uiCountries.isEmpty()) {
                 noBoardersTv.setVisibility(View.VISIBLE);
             }
         } else {
